@@ -26,7 +26,10 @@
 
 import config as cf
 from App import model
+from DISClib.DataStructures import listiterator as it
 import csv
+import os
+import time
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -40,12 +43,60 @@ recae sobre el controlador.
 #  Inicializacion del catalogo
 # ___________________________________________________
 
+def inicializar_analizador():
+    return model.crear_analizador()
 
 # ___________________________________________________
 #  Funciones para la carga de datos y almacenamiento
 #  de datos en los modelos
 # ___________________________________________________
 
+def cargar_viajes(analizador):
+    total_estaciones = 0
+    total_caminos = 0
+    for archivo in os.listdir(cf.data_dir):
+        ti = time.perf_counter()
+        if archivo.endswith('.csv'):
+            print('Cargando archivo: ' + archivo)
+            estaciones_archivo, caminos_archivo = cargar_datos(analizador,archivo)
+            total_estaciones += estaciones_archivo
+            total_caminos += caminos_archivo
+        tf = time.perf_counter()
+        print("Tiempo de ejecución:",tf-ti,end='\n\n')
+    return analizador, total_estaciones, total_caminos
+
+def cargar_datos(analizador,archivo):
+    archivo_viajes = cf.data_dir + archivo
+    datos = csv.DictReader(open(archivo_viajes, encoding= 'utf-8'),delimiter=',')
+    total_estaciones = 0
+    total_caminos = 0
+    for viaje in datos:
+        if not model.existe_estacion(analizador['estaciones'],viaje['start station id']):
+            total_estaciones += 1
+            datos_estacion_salida = {'id': viaje['start station id'],
+                                     'nombre': viaje['start station name'],
+                                     'latitud': viaje['start station latitude'],
+                                     'longitud': viaje['start station longitude']}
+            model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_salida['id'], datos_estacion_salida)
+            
+        if not model.existe_estacion(analizador['estaciones'],viaje['end station id']):
+            total_estaciones += 1
+            datos_estacion_llegada = {'id': viaje['end station id'],
+                                     'nombre': viaje['end station name'],
+                                     'latitud': viaje['end station latitude'],
+                                     'longitud': viaje['end station longitude']}
+            model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_llegada['id'], datos_estacion_llegada)       
+    
+        total_caminos += 1
+        model.crear_camino(analizador['grafo'],viaje['start station id'],viaje['end station id'],viaje['tripduration'])
+
+    return total_estaciones, total_caminos
+
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def imprimir_lista_estaciones(grafo):
+    iterador = it.newIterator(model.lista_estaciones(grafo))
+    while it.hasNext(iterador):
+        print(it.next(iterador))

@@ -43,11 +43,67 @@ operación seleccionada.
 #  Variables
 # ___________________________________________________
 
+analizador = {}
 
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
 
+def imprimir_menu_principal():
+    print("\n1- Inicializar el analizador")
+    print("2- Cargar los datos")
+    print("3- Req 1: Encontrar la cantidad de clusters")
+    print("4- Req 2: Encontrar una ruta turística circular")
+    print("5- Req 3: Encontrar estaciones críticas")
+    print("6- Req 4: Encontrar una ruta turística por resistencia")
+    print("7- Req 5: Recomendador de rutas")
+    print("8- Req 6: Ruta de interés turístico")
+    print("9- Req 7: Identificación de estaciones para publicidad")
+    print("10- Req 8: Identiciación de bicicletas para mantenimiento")
+    print("0- Salir\n")
+
 """
 Menu principal
 """
+
+while True:
+    imprimir_menu_principal()
+    seleccion = input("Seleccione una opción:\n")
+
+    if seleccion[0] == '1':
+        analizador = controller.inicializar_analizador()
+
+    elif seleccion[0] == '2':
+        analizador, total_estaciones, total_caminos = controller.cargar_viajes(analizador)
+        print("La cantidad de estaciones cargadas es:",total_estaciones)
+        print("La cantidad de caminos presentes es:",total_caminos)        
+
+    elif seleccion[0] == '3':
+        pass
+
+    elif seleccion[0] == '4':
+        pass
+
+    elif seleccion[0] == '5':
+        pass
+
+    elif seleccion[0] == '6':
+        pass
+
+    elif seleccion[0] == '7':
+        pass
+
+    elif seleccion[0] == '8':
+        pass
+
+    elif seleccion[0] == '9':
+        pass
+
+    elif seleccion[0] == '10':
+        pass
+
+    elif seleccion[0] == '0':
+        sys.exit(0)
+    
+    else:
+        sys.exit(0)
