@@ -53,23 +53,29 @@ def inicializar_analizador():
 
 def cargar_viajes(analizador):
     total_estaciones = 0
+    total_viajes = 0
     total_caminos = 0
     for archivo in os.listdir(cf.data_dir):
         ti = time.perf_counter()
         if archivo.endswith('.csv'):
             print('Cargando archivo: ' + archivo)
-            estaciones_archivo, caminos_archivo = cargar_datos(analizador,archivo)
+            estaciones_archivo, viajes_archivo, caminos_archivo = cargar_datos(analizador,archivo)
             total_estaciones += estaciones_archivo
+            total_viajes += viajes_archivo
             total_caminos += caminos_archivo
-        model.promediar_pesos(analizador['grafo'])
+            print("La cantidad de viajes presentes es:",total_viajes)
+            print("La cantidad de estaciones presentes es:",total_estaciones)
+            print("La cantidad de caminos presentes es:",total_caminos)
         tf = time.perf_counter()
-        print("Tiempo de ejecución:",tf-ti,end='\n\n')
-    return analizador, total_estaciones, total_caminos
+        print("Tiempo de ejecución:",rount(tf-ti,3),end='\n\n')
+    model.promediar_pesos(analizador['grafo'])
+    return analizador, total_estaciones, total_viajes
 
 def cargar_datos(analizador,archivo):
     archivo_viajes = cf.data_dir + archivo
     datos = csv.DictReader(open(archivo_viajes, encoding= 'utf-8'),delimiter=',')
     total_estaciones = 0
+    total_viajes = 0
     total_caminos = 0
     for viaje in datos:
         if not model.existe_estacion(analizador['estaciones'],viaje['start station id']):
@@ -88,10 +94,10 @@ def cargar_datos(analizador,archivo):
                                      'longitud': viaje['end station longitude']}
             model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_llegada['id'], datos_estacion_llegada)       
     
-        total_caminos += 1
-        model.crear_camino(analizador['grafo'],viaje['start station id'],viaje['end station id'],viaje['tripduration'])
+        total_viajes += 1
+        total_caminos += model.crear_camino(analizador['grafo'],viaje['start station id'],viaje['end station id'],int(viaje['tripduration']))
 
-    return total_estaciones, total_caminos
+    return total_estaciones, total_viajes, total_caminos
 
 # ___________________________________________________
 #  Funciones para consultas

@@ -75,8 +75,8 @@ while True:
 
     elif seleccion[0] == '2':
         analizador, total_estaciones, total_caminos = controller.cargar_viajes(analizador)
-        print("La cantidad de estaciones cargadas es:",total_estaciones)
-        print("La cantidad de caminos presentes es:",total_caminos)        
+        # print("La cantidad de estaciones cargadas es:",total_estaciones)
+        # print("La cantidad de caminos presentes es:",total_caminos)
 
     elif seleccion[0] == '3':
         pass

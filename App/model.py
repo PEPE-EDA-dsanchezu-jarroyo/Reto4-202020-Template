@@ -67,7 +67,7 @@ def crear_lista(listtype='SINGLE_LINKED'):
 
 # Funciones para agregar informacion al grafo
 
-def insertar_estacion(grafo,mapa,id_estacion,datos_estacion):       #SI ESTÁ MUY DEMORADO LO REVISAMOS
+def insertar_estacion(grafo,mapa,id_estacion,datos_estacion):
     """
     Inserta una estación en el analizador
     """
@@ -82,9 +82,11 @@ def crear_camino(grafo,estacion1,estacion2,tiempo):
     arco = gr.getEdge(grafo,estacion1,estacion2)
     if arco is None:
         gr.addEdge(grafo,estacion1,estacion2,[tiempo,1])
+        return 1
     else:
         arco['weight'][0]  += tiempo
         arco['weight'][1]  += 1
+        return 0
 
 def promediar_pesos(grafo):
     """
