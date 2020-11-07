@@ -61,6 +61,7 @@ def cargar_viajes(analizador):
             estaciones_archivo, caminos_archivo = cargar_datos(analizador,archivo)
             total_estaciones += estaciones_archivo
             total_caminos += caminos_archivo
+        model.promediar_pesos(analizador['grafo'])
         tf = time.perf_counter()
         print("Tiempo de ejecución:",tf-ti,end='\n\n')
     return analizador, total_estaciones, total_caminos
