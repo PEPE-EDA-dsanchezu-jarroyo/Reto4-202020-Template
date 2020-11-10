@@ -104,6 +104,17 @@ def lista_estaciones(grafo):
     """Retorna una lista con todas las ID de las estaciones del grafo."""
     return gr.vertices(grafo)
 
+def estructura_Kosaraju(grafo):
+    """Retorna una estructura con el resultado del algoritmo de Kosaraju."""
+    return scc.KosarajuSCC(grafo)
+
+def numero_componentes_conectados(kosaraju):
+    """Retorna el número de componentes conectados en un grafo."""
+    return scc.connectedComponents(kosaraju)
+
+def encontrar_clusteres(kosaraju, estacion1, estacion2):
+    """Retorna True si dos estaciones se encuentran en el mismo cluster."""
+    return scc.stronglyConnected(kosaraju, estacion1, estacion2)
 
 # ==============================
 # Funciones Helper

@@ -73,6 +73,7 @@ def cargar_viajes(analizador):
             print("La cantidad de viajes presentes es:", total_viajes)
             print("La cantidad de estaciones presentes es:", total_estaciones)
             print("La cantidad de caminos presentes es:", total_caminos)
+            print("La cantidad de componentes fuertemente conectados presentes es:", model.numero_componentes_conectados(model.estructura_Kosaraju(analizador['grafo'])))
         tf = time.perf_counter()
         print("Tiempo de ejecución:", round(tf-ti, 3), end='\n\n')
     model.promediar_pesos(analizador['grafo'])
@@ -91,24 +92,24 @@ def cargar_datos(analizador, archivo):
     total_viajes = 0
     total_caminos = 0
     for viaje in datos:
-        if not model.existe_estacion(analizador['estaciones'], viaje['start station id']):
+        if not model.existe_estacion(analizador['estaciones'], int(viaje['start station id'])):
             total_estaciones += 1
-            datos_estacion_salida = {'id': viaje['start station id'],
+            datos_estacion_salida = {'id': int(viaje['start station id']),
                                      'nombre': viaje['start station name'],
-                                     'latitud': viaje['start station latitude'],
-                                     'longitud': viaje['start station longitude']}
+                                     'latitud': float(viaje['start station latitude']),
+                                     'longitud': float(viaje['start station longitude'])}
             model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_salida['id'], datos_estacion_salida)
 
-        if not model.existe_estacion(analizador['estaciones'],viaje['end station id']):
+        if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
             total_estaciones += 1
-            datos_estacion_llegada = {'id': viaje['end station id'],
+            datos_estacion_llegada = {'id': int(viaje['end station id']),
                                      'nombre': viaje['end station name'],
-                                     'latitud': viaje['end station latitude'],
-                                     'longitud': viaje['end station longitude']}
+                                     'latitud': float(viaje['end station latitude']),
+                                     'longitud': float(viaje['end station longitude'])}
             model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_llegada['id'], datos_estacion_llegada)       
 
         total_viajes += 1
-        total_caminos += model.crear_camino(analizador['grafo'], viaje['start station id'], viaje['end station id'],int(viaje['tripduration']))
+        total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
 
     return total_estaciones, total_viajes, total_caminos
 
@@ -116,9 +117,15 @@ def cargar_datos(analizador, archivo):
 #  Funciones para consultas
 # ___________________________________________________
 
-
 def imprimir_lista_estaciones(grafo):
     """Imprime la lista de las estaciones del grafo."""
     iterador = it.newIterator(model.lista_estaciones(grafo))
     while it.hasNext(iterador):
         print(it.next(iterador))
+
+def funciones_clusteres(analizador, estacion1, estacion2):
+    """Retorna el número de clústeres en el grafo y si dos estaciones se encuentran en un mismo clúster."""
+    kosaraju = model.estructura_Kosaraju(analizador['grafo'])
+    numero_scc = model.numero_componentes_conectados(kosaraju)
+    scc_dos_estaciones = model.encontrar_clusteres(kosaraju, estacion1, estacion2)
+    return numero_scc, scc_dos_estaciones
