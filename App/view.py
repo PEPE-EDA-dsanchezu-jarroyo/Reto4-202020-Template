@@ -53,8 +53,7 @@ analizador = None
 
 def imprimir_menu_principal():
     """Imprime todas las opciones del menú principal."""
-    print("\nI- Inicializar el analizador")
-    print("C- Cargar los datos")
+    print("\nC- Cargar los datos")
     print("1- Req 1: Encontrar la cantidad de clusters")
     print("2- Req 2: Encontrar una ruta turística circular")
     print("3- Req 3: Encontrar estaciones críticas")
@@ -74,10 +73,8 @@ while True:
     imprimir_menu_principal()
     seleccion = input("Seleccione una opción:\n")
 
-    if seleccion[0] == 'I':
+    if str(seleccion[0]).upper() == 'C':
         analizador = controller.inicializar_analizador()
-
-    elif seleccion[0] == 'C':
         analizador, total_estaciones, total_caminos = controller.cargar_viajes(analizador)
 
     elif seleccion[0] == '1':
@@ -102,7 +99,22 @@ while True:
         pass
 
     elif seleccion[0] == '3':
-        pass
+        ti = time.perf_counter()
+        resultado = controller.encontrar_tops_3(analizador)
+        tf = time.perf_counter()
+        print("\nTop 3 estaciones de salidas: ")
+        for i in resultado[0]:
+            print(f"{i[1]:<30}: {i[0]} salidas")
+        
+        print("\nTop 3 estaciones de llegada: ")
+        for i in resultado[1]:
+            print(f"{i[1]:<30}: {i[0]} llegadas")
+
+        print("\nTop 3 estaciones más tristes: ")
+        for i in resultado[2]:
+            print(f"{i[1]:<30}: {i[0]} salidas y llegadas")
+
+        print("Tiempo de ejecución:",tf-ti,"segundos")
 
     elif seleccion[0] == '4':
         pass
