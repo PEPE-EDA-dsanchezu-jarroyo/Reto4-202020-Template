@@ -90,10 +90,10 @@ while True:
                 print("pertenecen al mismo clúster")
             else:
                 print("no pertenecen al mismo clúster")
-            print("Tiempo de ejecución: ", tf-t1, "segundos")
+            print("Tiempo de ejecución: ", round(tf-ti,5), "segundos")
         else:
             print("Por favor cargue los datos primero")
-            print("Escriba \'I\' para inicializar y \'C\' para cargar")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '2':
         pass
@@ -123,7 +123,18 @@ while True:
         pass
 
     elif seleccion[0] == '6':
-        pass
+        pos_inicial = input("Ingrese su posición inicial (ej: 40.69839895 -73.98068914): ").split()
+        pos_final = input("Ingrese su posición inicial (ej: 40.69196566 -73.9813018): ").split()
+        ti = time.perf_counter()
+        resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
+        tf = time.perf_counter()
+
+        print(f"\nEstacion inicial: {resultado[0][1]} (id: {resultado[0][0]})")
+        print(f"Estacion final: {resultado[1][1]} (id: {resultado[1][0]})")
+        print(f"Ruta a tomar:\n{resultado[4]}")
+        print(f"Tiempo estimado de viaje: {resultado[2]}")
+        print(f"Distancia total: {resultado[3]}")
+        print(f"Tiempo de ejecución: {round(tf-ti,7)} Segundos")
 
     elif seleccion[0] == '7':
         pass

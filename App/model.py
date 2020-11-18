@@ -27,6 +27,7 @@ import math
 from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
+from DISClib.ADT import stack as stk
 from DISClib.DataStructures import listiterator as it
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
@@ -150,7 +151,35 @@ def encontrar_tops_3(analizador):
     
     return (max_salidas_lst, max_llegadas_lst, mas_tristes_lst)
         
+def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
+    """Requerimiento 6.
 
+    Retorna la estación más cercana a las cordenadas lat, lon.
+    """
+    lista_estaciones = m.valueSet(analizador['estaciones'])
+    iterador = it.newIterator(lista_estaciones)
+    estacion_inicial = (math.inf, None)
+    estacion_final = (math.inf, None)
+    while it.hasNext(iterador):
+        datos_estacion = it.next(iterador)
+        distancia_estacion_inicial = distancia_lat_lon(lon_inicial, lat_inicial, datos_estacion['longitud'],  datos_estacion['latitud'])
+        distancia_estacion_final = distancia_lat_lon(lon_final, lat_final, datos_estacion['longitud'],  datos_estacion['latitud'])
+        if distancia_estacion_inicial < estacion_inicial[0]:
+            estacion_inicial = (distancia_estacion_inicial, datos_estacion)
+        if distancia_estacion_final < estacion_final[0]:
+            estacion_final = (distancia_estacion_final, datos_estacion)
+    distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
+    return (estacion_inicial[1], estacion_final[1]), distancia_total
+
+def datos_dijkstra(analizador, estacion_inicio, estacion_final):
+    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
+    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
+    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
+    lista_caminos = crear_lista()
+    if caminos is not None:
+        for i in range(stk.size(caminos)):
+            lt.addLast(lista_caminos, stk.pop(caminos))
+    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
 
 # ==============================
 # Funciones Helper
@@ -159,6 +188,19 @@ def encontrar_tops_3(analizador):
 def estructura_Kosaraju(grafo):
     """Retorna una estructura con el resultado del algoritmo de Kosaraju."""
     return scc.KosarajuSCC(grafo)
+
+def distancia_lat_lon(lon1,lat1,lon2,lat2):
+    """Retorna la distancia entre 2 puntos."""
+    delta_lon = lon2-lon1
+    delta_lat = lat2-lat1
+
+    alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
+
+    distancia = 2*math.asin(math.sqrt(alpha)) * 3956
+
+    return distancia
+
+
 
 # ==============================
 # Funciones de Comparacion
@@ -187,4 +229,3 @@ def comparacion_ranking_invertido(el1, el2):
     elif el1 == el2[0]:
         return 0
     return -1
-

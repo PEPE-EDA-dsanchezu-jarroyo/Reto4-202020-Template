@@ -30,6 +30,7 @@ from DISClib.ADT import list as lt
 import csv
 import os
 import time
+import math
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -147,3 +148,17 @@ def encontrar_tops_3(analizador):
     más llegadas, y más tristes.
     """
     return model.encontrar_tops_3(analizador)
+
+def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
+    estaciones, distancia = model.encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final)
+    tiempo, caminos = model.datos_dijkstra(analizador, estaciones[0]['id'], estaciones[1]['id'])
+    iterador_caminos = it.newIterator(caminos)
+    camino = ""
+    while it.hasNext(iterador_caminos):
+        arco = it.next(iterador_caminos)
+        camino += str(arco['vertexA']) + " -> " + str(arco['vertexB']) + "\n"
+    if tiempo != math.inf:
+        return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), tiempo, distancia, camino
+    else:
+        return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "No existe ruta"
+
