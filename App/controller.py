@@ -129,3 +129,25 @@ def funciones_clusteres(analizador, estacion1, estacion2):
     numero_scc = model.numero_componentes_conectados(kosaraju)
     scc_dos_estaciones = model.encontrar_clusteres(kosaraju, estacion1, estacion2)
     return numero_scc, scc_dos_estaciones
+
+def funciones_djisktra(analizador, vertice,llegada):
+    djisktra=model.estructura_Dijkstra(analizador['grafo'], vertice)
+    print(djisktra)
+    route=model.camino_vertice_a_vertice_dijstra(djisktra,llegada)
+    print(route)
+    return route
+
+def menor_recorrido_posible(grafo, estacion_o):
+    tiempo_menor=100000000000000000000000000
+    ruta_menor=''
+    lista_entradas=model.entradas_estaciones(grafo, estacion_o)
+    for i in lista_entradas['elements']:
+        lista_djistra=funciones_djisktra(grafo, estacion_o, i)
+        tiempo1=0
+        for j in lista_djistra['elements']:
+            tiempo1+=(model.peso_estacion_estacion(grafo,estacion_o, j) + 20)
+        tiempo1+=model.peso_estacion_estacion(grafo,estacion_o, i)
+        if tiempo1 <= tiempo_menor:  
+            tiempo_menor=tiempo1
+            ruta_menor=j
+    return (tiempo_menor, tiempo1)

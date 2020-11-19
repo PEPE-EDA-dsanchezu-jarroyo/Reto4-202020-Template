@@ -38,7 +38,7 @@ de creacion y consulta sobre las estructuras de datos.
 """
 
 def crear_analizador():
-    r"""Función de crear un TAD analizador.
+    """Función de crear un TAD analizador.
 
     Crea un analizador (diccionario) con las siguientes llaves:
     'grafo': Contiene el grafo de id de estaciones y conexiones entre ellas.
@@ -116,7 +116,21 @@ def encontrar_clusteres(kosaraju, estacion1, estacion2):
     """Retorna True si dos estaciones se encuentran en el mismo cluster."""
     return scc.stronglyConnected(kosaraju, estacion1, estacion2)
 
-# ==============================
+def estructura_Dijkstra(graph, source):
+    """Retron un nuevo grafo vacío utilizado en el algoritmo de Dijkstra"""
+    return djk.Dijkstra(graph, source)
+
+def camino_vertice_a_vertice_dijstra(search, vertex):
+    """Retorna una pila con el camino entre source y vertex"""
+    return djk.pathTo(search, vertex)
+
+def entradas_estaciones(analizador,estacion):
+    return m.get(analizador['estaciones'],estacion)['values']['llegadas']
+
+def peso_estacion_estacion(analizador,estacion1,estacion2):
+    return gr.getEdge(analizador,estacion1,estacion2)
+    
+# ==============================  
 # Funciones Helper
 # ==============================
 

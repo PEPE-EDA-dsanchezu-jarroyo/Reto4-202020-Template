@@ -93,12 +93,15 @@ while True:
                 print("pertenecen al mismo clúster")
             else:
                 print("no pertenecen al mismo clúster")
-            print("Tiempo de ejecución: ", tf-t1, "segundos")
+            print("Tiempo de ejecución: ", tf-ti, "segundos")
         else:
             print("Por favor cargue los datos primero")
             print("Escriba \'I\' para inicializar y \'C\' para cargar")
 
     elif seleccion[0] == '2':
+        origen = int(input("inserte estacion de origen: "))
+        llegada = int(input("inserte estacion de origen: "))
+        controller.funciones_djisktra(analizador,origen,llegada)
         pass
 
     elif seleccion[0] == '3':
