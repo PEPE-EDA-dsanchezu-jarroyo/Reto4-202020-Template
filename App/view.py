@@ -53,8 +53,7 @@ analizador = None
 
 def imprimir_menu_principal():
     """Imprime todas las opciones del menú principal."""
-    print("\nI- Inicializar el analizador")
-    print("C- Cargar los datos")
+    print("\nC- Cargar los datos")
     print("1- Req 1: Encontrar la cantidad de clusters")
     print("2- Req 2: Encontrar una ruta turística circular")
     print("3- Req 3: Encontrar estaciones críticas")
@@ -74,10 +73,8 @@ while True:
     imprimir_menu_principal()
     seleccion = input("Seleccione una opción:\n")
 
-    if seleccion[0] == 'I':
+    if str(seleccion[0]).upper() == 'C':
         analizador = controller.inicializar_analizador()
-
-    elif seleccion[0] == 'C':
         analizador, total_estaciones, total_caminos = controller.cargar_viajes(analizador)
 
     elif seleccion[0] == '1':
@@ -93,10 +90,10 @@ while True:
                 print("pertenecen al mismo clúster")
             else:
                 print("no pertenecen al mismo clúster")
-            print("Tiempo de ejecución: ", tf-ti, "segundos")
+            print("Tiempo de ejecución: ", round(tf-ti,5), "segundos")
         else:
             print("Por favor cargue los datos primero")
-            print("Escriba \'I\' para inicializar y \'C\' para cargar")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '2':
         origen = int(input("inserte estacion de origen: "))
@@ -105,7 +102,22 @@ while True:
         pass
 
     elif seleccion[0] == '3':
-        pass
+        ti = time.perf_counter()
+        resultado = controller.encontrar_tops_3(analizador)
+        tf = time.perf_counter()
+        print("\nTop 3 estaciones de salidas: ")
+        for i in resultado[0]:
+            print(f"{i[1]:<30}: {i[0]} salidas")
+        
+        print("\nTop 3 estaciones de llegada: ")
+        for i in resultado[1]:
+            print(f"{i[1]:<30}: {i[0]} llegadas")
+
+        print("\nTop 3 estaciones más tristes: ")
+        for i in resultado[2]:
+            print(f"{i[1]:<30}: {i[0]} salidas y llegadas")
+
+        print("Tiempo de ejecución:",tf-ti,"segundos")
 
     elif seleccion[0] == '4':
         pass
@@ -114,7 +126,18 @@ while True:
         pass
 
     elif seleccion[0] == '6':
-        pass
+        pos_inicial = input("Ingrese su posición inicial (ej: 40.69839895 -73.98068914): ").split()
+        pos_final = input("Ingrese su posición inicial (ej: 40.69196566 -73.9813018): ").split()
+        ti = time.perf_counter()
+        resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
+        tf = time.perf_counter()
+
+        print(f"\nEstacion inicial: {resultado[0][1]} (id: {resultado[0][0]})")
+        print(f"Estacion final: {resultado[1][1]} (id: {resultado[1][0]})")
+        print(f"Ruta a tomar:\n{resultado[4]}")
+        print(f"Tiempo estimado de viaje: {resultado[2]}")
+        print(f"Distancia total: {resultado[3]}")
+        print(f"Tiempo de ejecución: {round(tf-ti,7)} Segundos")
 
     elif seleccion[0] == '7':
         pass

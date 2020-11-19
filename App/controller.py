@@ -26,9 +26,11 @@ Dario Correal
 import config as cf
 from App import model
 from DISClib.DataStructures import listiterator as it
+from DISClib.ADT import list as lt
 import csv
 import os
 import time
+import math
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -76,7 +78,7 @@ def cargar_viajes(analizador):
             print("La cantidad de componentes fuertemente conectados presentes es:", model.numero_componentes_conectados(model.estructura_Kosaraju(analizador['grafo'])))
         tf = time.perf_counter()
         print("Tiempo de ejecución:", round(tf-ti, 3), end='\n\n')
-    model.promediar_pesos(analizador['grafo'])
+    model.configurar_arcos(analizador)
     return analizador, total_estaciones, total_viajes
 
 
@@ -97,17 +99,22 @@ def cargar_datos(analizador, archivo):
             datos_estacion_salida = {'id': int(viaje['start station id']),
                                      'nombre': viaje['start station name'],
                                      'latitud': float(viaje['start station latitude']),
-                                     'longitud': float(viaje['start station longitude'])}
+                                     'longitud': float(viaje['start station longitude']),
+                                     'salidas': model.crear_lista(),
+                                     'llegadas': model.crear_lista()}
             model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_salida['id'], datos_estacion_salida)
+            lt.addLast(datos_estacion_salida['salidas'], int(viaje['end station id']))
 
         if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
             total_estaciones += 1
             datos_estacion_llegada = {'id': int(viaje['end station id']),
                                      'nombre': viaje['end station name'],
                                      'latitud': float(viaje['end station latitude']),
-                                     'longitud': float(viaje['end station longitude'])}
+                                     'longitud': float(viaje['end station longitude']),
+                                     'salidas': model.crear_lista(),
+                                     'llegadas': model.crear_lista()}
             model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_llegada['id'], datos_estacion_llegada)       
-
+            lt.addLast(datos_estacion_llegada['llegadas'], int(viaje['start station id']))
         total_viajes += 1
         total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
 
@@ -124,7 +131,11 @@ def imprimir_lista_estaciones(grafo):
         print(it.next(iterador))
 
 def funciones_clusteres(analizador, estacion1, estacion2):
-    """Retorna el número de clústeres en el grafo y si dos estaciones se encuentran en un mismo clúster."""
+    """Requerimiento 1.
+    
+    Retorna el número de clústeres en el grafo y 
+    si dos estaciones se encuentran en un mismo clúster.
+    """
     kosaraju = model.estructura_Kosaraju(analizador['grafo'])
     numero_scc = model.numero_componentes_conectados(kosaraju)
     scc_dos_estaciones = model.encontrar_clusteres(kosaraju, estacion1, estacion2)
@@ -151,3 +162,24 @@ def menor_recorrido_posible(grafo, estacion_o):
             tiempo_menor=tiempo1
             ruta_menor=j
     return (tiempo_menor, tiempo1)
+def encontrar_tops_3(analizador):
+    """Requerimiento 3.
+    
+    Retorna los top 3 de las estaciones con más salidas
+    más llegadas, y más tristes.
+    """
+    return model.encontrar_tops_3(analizador)
+
+def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
+    estaciones, distancia = model.encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final)
+    tiempo, caminos = model.datos_dijkstra(analizador, estaciones[0]['id'], estaciones[1]['id'])
+    iterador_caminos = it.newIterator(caminos)
+    camino = ""
+    while it.hasNext(iterador_caminos):
+        arco = it.next(iterador_caminos)
+        camino += str(arco['vertexA']) + " -> " + str(arco['vertexB']) + "\n"
+    if tiempo != math.inf:
+        return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), tiempo, distancia, camino
+    else:
+        return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "No existe ruta"
+

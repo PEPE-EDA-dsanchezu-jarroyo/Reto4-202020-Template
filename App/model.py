@@ -23,14 +23,17 @@ Dario Correal.
 
 
 import config
+import math
 from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
+from DISClib.ADT import stack as stk
 from DISClib.DataStructures import listiterator as it
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
 assert config
+from DISClib.ADT import minpq as mpq
 
 """
 En este archivo definimos los TADs que vamos a usar y las operaciones
@@ -85,11 +88,15 @@ def crear_camino(grafo,estacion1,estacion2,tiempo):
         arco['weight'][1]  += 1
         return 0
 
-def promediar_pesos(grafo):
+def configurar_arcos(analizador):
     """Función que promedia cada uno de los pesos de cada arco en el grafo."""
-    iterador = it.newIterator(gr.edges(grafo))
+    iterador = it.newIterator(gr.edges(analizador['grafo']))
     while it.hasNext(iterador):
         arco = it.next(iterador)
+        vertice_a = m.get(analizador['estaciones'],arco['vertexA'])
+        vertice_b = m.get(analizador['estaciones'],arco['vertexB'])
+        lt.addLast(vertice_a['value']['salidas'],vertice_a)
+        lt.addLast(vertice_b['value']['llegadas'],vertice_b)
         arco['weight'] = round(arco['weight'][0]/arco['weight'][1],3)
 
 # ==============================
@@ -103,10 +110,6 @@ def existe_estacion(mapa,estacion):
 def lista_estaciones(grafo):
     """Retorna una lista con todas las ID de las estaciones del grafo."""
     return gr.vertices(grafo)
-
-def estructura_Kosaraju(grafo):
-    """Retorna una estructura con el resultado del algoritmo de Kosaraju."""
-    return scc.KosarajuSCC(grafo)
 
 def numero_componentes_conectados(kosaraju):
     """Retorna el número de componentes conectados en un grafo."""
@@ -131,17 +134,113 @@ def peso_estacion_estacion(analizador,estacion1,estacion2):
     return gr.getEdge(analizador,estacion1,estacion2)
     
 # ==============================  
+def encontrar_tops_3(analizador):
+    """Requerimiento 3.
+
+    Crea tres colas de prioridad y organiza los datos salida, llegada y
+    tristeza (suma de salidas y llegadas) de cada una de las estaciones.
+
+    Posteriormente obtiene los 3 elementos con más prioridad y los retorna
+    """
+    iterador = it.newIterator(m.valueSet(analizador['estaciones']))
+    max_salidas = mpq.newMinPQ(comparacion_ranking)
+    max_llegadas = mpq.newMinPQ(comparacion_ranking)
+    mas_tristes = mpq.newMinPQ(comparacion_ranking_invertido)
+    while it.hasNext(iterador):
+        estacion = it.next(iterador)
+        cantidad_salidas = lt.size(estacion['salidas'])
+        cantidad_llegadas = lt.size(estacion['llegadas'])
+        cantidad_tristes = cantidad_salidas + cantidad_llegadas
+        mpq.insert(max_salidas, (cantidad_salidas, estacion['nombre']))
+        mpq.insert(max_llegadas, (cantidad_llegadas, estacion['nombre']))
+        mpq.insert(mas_tristes, (cantidad_tristes, estacion['nombre']))
+    
+    max_salidas_lst = []
+    max_llegadas_lst = []
+    mas_tristes_lst = []
+
+    for i in range(3):
+        max_salidas_lst.append(mpq.delMin(max_salidas))
+        max_llegadas_lst.append(mpq.delMin(max_llegadas))
+        mas_tristes_lst.append(mpq.delMin(mas_tristes))
+    
+    return (max_salidas_lst, max_llegadas_lst, mas_tristes_lst)
+        
+def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
+    """Requerimiento 6.
+
+    Retorna la estación más cercana a las cordenadas lat, lon.
+    """
+    lista_estaciones = m.valueSet(analizador['estaciones'])
+    iterador = it.newIterator(lista_estaciones)
+    estacion_inicial = (math.inf, None)
+    estacion_final = (math.inf, None)
+    while it.hasNext(iterador):
+        datos_estacion = it.next(iterador)
+        distancia_estacion_inicial = distancia_lat_lon(lon_inicial, lat_inicial, datos_estacion['longitud'],  datos_estacion['latitud'])
+        distancia_estacion_final = distancia_lat_lon(lon_final, lat_final, datos_estacion['longitud'],  datos_estacion['latitud'])
+        if distancia_estacion_inicial < estacion_inicial[0]:
+            estacion_inicial = (distancia_estacion_inicial, datos_estacion)
+        if distancia_estacion_final < estacion_final[0]:
+            estacion_final = (distancia_estacion_final, datos_estacion)
+    distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
+    return (estacion_inicial[1], estacion_final[1]), distancia_total
+
+def datos_dijkstra(analizador, estacion_inicio, estacion_final):
+    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
+    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
+    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
+    lista_caminos = crear_lista()
+    if caminos is not None:
+        for i in range(stk.size(caminos)):
+            lt.addLast(lista_caminos, stk.pop(caminos))
+    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
+
+# ==============================
 # Funciones Helper
 # ==============================
+
+def estructura_Kosaraju(grafo):
+    """Retorna una estructura con el resultado del algoritmo de Kosaraju."""
+    return scc.KosarajuSCC(grafo)
+
+def distancia_lat_lon(lon1,lat1,lon2,lat2):
+    """Retorna la distancia entre 2 puntos."""
+    delta_lon = lon2-lon1
+    delta_lat = lat2-lat1
+
+    alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
+
+    distancia = 2*math.asin(math.sqrt(alpha)) * 3956
+
+    return distancia
+
+
 
 # ==============================
 # Funciones de Comparacion
 # ==============================
 
-def comparar_estaciones(el1,el2):
+def comparar_estaciones(el1, el2):
     """Compara las ID de 2 estaciones."""
     if el1 > el2['key']:
         return 1
     elif el1 == el2['key']:
+        return 0
+    return -1
+
+def comparacion_ranking(el1, el2):
+    """Función para comparar los datos en una MinPQ."""
+    if el1[0] < el2[0]:
+        return 1
+    elif el1 == el2[0]:
+        return 0
+    return -1
+
+def comparacion_ranking_invertido(el1, el2):
+    """Función para comparar los datos en una MaxPQ."""
+    if el1[0] > el2[0]:
+        return 1
+    elif el1 == el2[0]:
         return 0
     return -1
