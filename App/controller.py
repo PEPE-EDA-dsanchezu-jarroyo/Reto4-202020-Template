@@ -102,7 +102,7 @@ def cargar_datos(analizador, archivo):
                                      'longitud': float(viaje['start station longitude']),
                                      'salidas': model.crear_lista(),
                                      'llegadas': model.crear_lista()}
-            model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_salida['id'], datos_estacion_salida)
+            model.insertar_estacion(analizador,datos_estacion_salida['id'], datos_estacion_salida)
             lt.addLast(datos_estacion_salida['salidas'], int(viaje['end station id']))
 
         if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
@@ -113,7 +113,7 @@ def cargar_datos(analizador, archivo):
                                      'longitud': float(viaje['end station longitude']),
                                      'salidas': model.crear_lista(),
                                      'llegadas': model.crear_lista()}
-            model.insertar_estacion(analizador['grafo'],analizador['estaciones'],datos_estacion_llegada['id'], datos_estacion_llegada)       
+            model.insertar_estacion(analizador,datos_estacion_llegada['id'], datos_estacion_llegada)       
             lt.addLast(datos_estacion_llegada['llegadas'], int(viaje['start station id']))
         total_viajes += 1
         total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
@@ -141,15 +141,13 @@ def funciones_clusteres(analizador, estacion1, estacion2):
     scc_dos_estaciones = model.encontrar_clusteres(kosaraju, estacion1, estacion2)
     return numero_scc, scc_dos_estaciones
 
-def funciones_djisktra(analizador, vertice,llegada):
+def funciones_djisktra(analizador, vertice, llegada):
     djisktra=model.estructura_Dijkstra(analizador['grafo'], vertice)
-    print(djisktra)
     route=model.camino_vertice_a_vertice_dijstra(djisktra,llegada)
-    print(route)
     return route
 
 def menor_recorrido_posible(grafo, estacion_o):
-    tiempo_menor=100000000000000000000000000
+    tiempo_menor=math.inf
     ruta_menor=''
     lista_entradas=model.entradas_estaciones(grafo, estacion_o)
     for i in lista_entradas['elements']:
@@ -162,6 +160,7 @@ def menor_recorrido_posible(grafo, estacion_o):
             tiempo_menor=tiempo1
             ruta_menor=j
     return (tiempo_menor, tiempo1)
+
 def encontrar_tops_3(analizador):
     """Requerimiento 3.
     

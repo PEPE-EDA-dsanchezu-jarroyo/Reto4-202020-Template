@@ -97,7 +97,7 @@ while True:
 
     elif seleccion[0] == '2':
         origen = int(input("inserte estacion de origen: "))
-        llegada = int(input("inserte estacion de origen: "))
+        llegada = int(input("inserte estacion de llegada: "))
         controller.funciones_djisktra(analizador,origen,llegada)
         pass
 

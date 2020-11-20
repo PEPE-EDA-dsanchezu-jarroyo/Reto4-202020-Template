@@ -48,7 +48,8 @@ def crear_analizador():
     'estaciones': Contiene una tabla de hash con las estaciones y todos sus datos.
     """
     analizador = {'grafo': crear_grafo(True,15),
-                  'estaciones': crear_mapa()}
+                  'estaciones': crear_mapa(),
+                  'lista_estaciones': crear_lista()}
     return analizador
 
 def crear_grafo(directed,size):
@@ -69,10 +70,11 @@ def crear_lista(listtype='SINGLE_LINKED'):
 
 # Funciones para agregar informacion al grafo
 
-def insertar_estacion(grafo,mapa,id_estacion,datos_estacion):
+def insertar_estacion(analizador,id_estacion,datos_estacion):
     """Inserta una estación en el analizador."""
-    m.put(mapa,id_estacion,datos_estacion)
-    gr.insertVertex(grafo,id_estacion)
+    m.put(analizador['estaciones'],id_estacion,datos_estacion)
+    gr.insertVertex(analizador['grafo'],id_estacion)
+    lt.addLast(analizador['lista_estaciones'], datos_estacion)
 
 def crear_camino(grafo,estacion1,estacion2,tiempo):
     """Crea un camino entre 2 estaciones con tiempo como peso.
@@ -142,7 +144,7 @@ def encontrar_tops_3(analizador):
 
     Posteriormente obtiene los 3 elementos con más prioridad y los retorna
     """
-    iterador = it.newIterator(m.valueSet(analizador['estaciones']))
+    iterador = it.newIterator(analizador['lista_estaciones'])
     max_salidas = mpq.newMinPQ(comparacion_ranking)
     max_llegadas = mpq.newMinPQ(comparacion_ranking)
     mas_tristes = mpq.newMinPQ(comparacion_ranking_invertido)
@@ -171,8 +173,7 @@ def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final
 
     Retorna la estación más cercana a las cordenadas lat, lon.
     """
-    lista_estaciones = m.valueSet(analizador['estaciones'])
-    iterador = it.newIterator(lista_estaciones)
+    iterador = it.newIterator(analizador['lista_estaciones'])
     estacion_inicial = (math.inf, None)
     estacion_final = (math.inf, None)
     while it.hasNext(iterador):
