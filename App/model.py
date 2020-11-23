@@ -49,7 +49,8 @@ def crear_analizador():
     """
     analizador = {'grafo': crear_grafo(True,15),
                   'estaciones': crear_mapa(),
-                  'lista_estaciones': crear_lista()}
+                  'lista_estaciones': None,
+                  'mapa_rango_edades': crear_mapa()}
     return analizador
 
 def crear_grafo(directed,size):
@@ -70,11 +71,21 @@ def crear_lista(listtype='SINGLE_LINKED'):
 
 # Funciones para agregar informacion al grafo
 
-def insertar_estacion(analizador,id_estacion,datos_estacion):
+def insertar_estacion(analizador, id_estacion, datos_estacion):
     """Inserta una estación en el analizador."""
     m.put(analizador['estaciones'],id_estacion,datos_estacion)
     gr.insertVertex(analizador['grafo'],id_estacion)
-    lt.addLast(analizador['lista_estaciones'], datos_estacion)
+
+def actualizar_estacion(mapa, estacion, nueva_salida=None, nueva_llegada=None):
+    datos_estacion = m.get(mapa, estacion)['value']
+    if nueva_salida is not None:
+        lt.addLast(datos_estacion['salidas'],nueva_salida[0])
+        datos_estacion['rangos_edad']['salidas'][nueva_salida[1]] += 1
+    
+    if nueva_llegada is not None:
+        lt.addLast(datos_estacion['llegadas'],nueva_llegada[0])
+        datos_estacion['rangos_edad']['llegadas'][nueva_llegada[1]] += 1
+
 
 def crear_camino(grafo,estacion1,estacion2,tiempo):
     """Crea un camino entre 2 estaciones con tiempo como peso.
@@ -100,6 +111,7 @@ def configurar_arcos(analizador):
         lt.addLast(vertice_a['value']['salidas'],vertice_a)
         lt.addLast(vertice_b['value']['llegadas'],vertice_b)
         arco['weight'] = round(arco['weight'][0]/arco['weight'][1],3)
+    analizador['lista_estaciones'] = m.valueSet(analizador['estaciones'])
 
 # ==============================
 # Funciones de consulta

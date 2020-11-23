@@ -65,8 +65,8 @@ def cargar_viajes(analizador):
     total_viajes = 0
     total_caminos = 0
     for archivo in os.listdir(cf.data_dir):
-        ti = time.perf_counter()
         if archivo.endswith('.csv'):
+            ti = time.perf_counter()
             print('Cargando archivo: ' + archivo)
             estaciones_archivo, viajes_archivo, caminos_archivo = cargar_datos(analizador, archivo)
             total_estaciones += estaciones_archivo
@@ -76,8 +76,8 @@ def cargar_viajes(analizador):
             print("La cantidad de estaciones presentes es:", total_estaciones)
             print("La cantidad de caminos presentes es:", total_caminos)
             print("La cantidad de componentes fuertemente conectados presentes es:", model.numero_componentes_conectados(model.estructura_Kosaraju(analizador['grafo'])))
-        tf = time.perf_counter()
-        print("Tiempo de ejecución:", round(tf-ti, 3), end='\n\n')
+            tf = time.perf_counter()
+            print("Tiempo de ejecución:", round(tf-ti, 3), end='\n\n')
     model.configurar_arcos(analizador)
     return analizador, total_estaciones, total_viajes
 
@@ -94,29 +94,58 @@ def cargar_datos(analizador, archivo):
     total_viajes = 0
     total_caminos = 0
     for viaje in datos:
-        if not model.existe_estacion(analizador['estaciones'], int(viaje['start station id'])):
-            total_estaciones += 1
-            datos_estacion_salida = {'id': int(viaje['start station id']),
-                                     'nombre': viaje['start station name'],
-                                     'latitud': float(viaje['start station latitude']),
-                                     'longitud': float(viaje['start station longitude']),
-                                     'salidas': model.crear_lista(),
-                                     'llegadas': model.crear_lista()}
-            model.insertar_estacion(analizador,datos_estacion_salida['id'], datos_estacion_salida)
-            lt.addLast(datos_estacion_salida['salidas'], int(viaje['end station id']))
+        if not viaje['start station id'] == viaje['end station id']:
 
-        if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
-            total_estaciones += 1
-            datos_estacion_llegada = {'id': int(viaje['end station id']),
-                                     'nombre': viaje['end station name'],
-                                     'latitud': float(viaje['end station latitude']),
-                                     'longitud': float(viaje['end station longitude']),
-                                     'salidas': model.crear_lista(),
-                                     'llegadas': model.crear_lista()}
-            model.insertar_estacion(analizador,datos_estacion_llegada['id'], datos_estacion_llegada)       
-            lt.addLast(datos_estacion_llegada['llegadas'], int(viaje['start station id']))
-        total_viajes += 1
-        total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
+            if 2020-int(viaje['birth year']) in range(0,11):
+                indice_viaje = 0
+            elif 2020-int(viaje['birth year']) in range(11,21):
+                indice_viaje = 1
+            elif 2020-int(viaje['birth year']) in range(21,31):
+                indice_viaje = 2
+            elif 2020-int(viaje['birth year']) in range(31,41):
+                indice_viaje = 3
+            elif 2020-int(viaje['birth year']) in range(41,51):
+                indice_viaje = 4
+            elif 2020-int(viaje['birth year']) in range(51,61):
+                indice_viaje = 5
+            else:
+                indice_viaje = 6
+
+            if not model.existe_estacion(analizador['estaciones'], int(viaje['start station id'])):
+                total_estaciones += 1
+                datos_estacion_salida = {'id': int(viaje['start station id']),
+                                         'nombre': viaje['start station name'],
+                                         'latitud': float(viaje['start station latitude']),
+                                         'longitud': float(viaje['start station longitude']),
+                                         'salidas': model.crear_lista(),
+                                         'llegadas': model.crear_lista(),
+                                         'rangos_edad': {'salidas': [0,0,0,0,0,0,0],
+                                                        'llegadas': [0,0,0,0,0,0,0]}}
+                model.insertar_estacion(analizador,datos_estacion_salida['id'], datos_estacion_salida)
+                lt.addLast(datos_estacion_salida['salidas'], int(viaje['end station id']))
+                datos_estacion_salida['rangos_edad']['salidas'][indice_viaje] += 1
+            else:
+                model.actualizar_estacion(analizador['estaciones'], int(viaje['start station id']),nueva_salida=(int(viaje['end station id']), indice_viaje))
+
+            if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
+                total_estaciones += 1
+                datos_estacion_llegada = {'id': int(viaje['end station id']),
+                                         'nombre': viaje['end station name'],
+                                         'latitud': float(viaje['end station latitude']),
+                                         'longitud': float(viaje['end station longitude']),
+                                         'salidas': model.crear_lista(),
+                                         'llegadas': model.crear_lista(),
+                                         'rangos_edad': {'salidas': [0,0,0,0,0,0,0],
+                                                        'llegadas': [0,0,0,0,0,0,0]}}
+                model.insertar_estacion(analizador,datos_estacion_llegada['id'], datos_estacion_llegada)       
+                lt.addLast(datos_estacion_llegada['llegadas'], int(viaje['start station id']))
+                datos_estacion_llegada['rangos_edad']['llegadas'][indice_viaje] += 1
+
+            else:
+                model.actualizar_estacion(analizador['estaciones'], int(viaje['end station id']), nueva_llegada=(int(viaje['start station id']), indice_viaje))
+
+            total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
+            total_viajes += 1
 
     return total_estaciones, total_viajes, total_caminos
 
@@ -179,6 +208,8 @@ def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_
         camino += str(arco['vertexA']) + " -> " + str(arco['vertexB']) + "\n"
     if tiempo != math.inf:
         return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), tiempo, distancia, camino
+    elif tiempo == 0:
+        return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "Por favor quédese en esa estación"
     else:
         return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "No existe ruta"
 
