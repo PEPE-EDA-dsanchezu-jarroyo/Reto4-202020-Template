@@ -123,7 +123,23 @@ while True:
         pass
 
     elif seleccion[0] == '5':
-        pass
+        print("Por favor ingrese su rango de edad según las siguientes opciones: ")
+        print("1- 0-10")
+        print("2- 11-20")
+        print("3- 21-30")
+        print("4- 31-40")
+        print("5- 41-50")
+        print("6- 51-60")
+        print("7- 60+\n")
+        indice_edad = int(input()[0])-1
+        ti = time.perf_counter()
+        est_inicio, est_final, camino, tiempo = controller.recomendador_de_rutas(analizador, indice_edad)
+        tf = time.perf_counter()
+        print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total viajes en rango de edad: {est_final[0]}")
+        print(f"Estación final: {est_final[2]} - id: {est_final[1]} - Total viajes en rango de edad: {est_final[0]}")
+        print(f"Ruta a tomar:\n{camino}")
+        print(f"Tiempo estimado de viaje: {tiempo}")
+        print(f"Tiempo de ejecución: {round(tf-ti,7)} Segundos")
 
     elif seleccion[0] == '6':
         pos_inicial = input("Ingrese su posición inicial (ej: 40.69839895 -73.98068914): ").split()
@@ -132,8 +148,8 @@ while True:
         resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
         tf = time.perf_counter()
 
-        print(f"\nEstacion inicial: {resultado[0][1]} (id: {resultado[0][0]})")
-        print(f"Estacion final: {resultado[1][1]} (id: {resultado[1][0]})")
+        print(f"\nEstación inicial: {resultado[0][1]} (id: {resultado[0][0]})")
+        print(f"Estación final: {resultado[1][1]} (id: {resultado[1][0]})")
         print(f"Ruta a tomar:\n{resultado[4]}")
         print(f"Tiempo estimado de viaje: {resultado[2]}")
         print(f"Distancia total: {resultado[3]}")

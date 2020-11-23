@@ -146,7 +146,10 @@ def entradas_estaciones(analizador,estacion):
 
 def peso_estacion_estacion(analizador,estacion1,estacion2):
     return gr.getEdge(analizador,estacion1,estacion2)
-    
+
+def datos_estacion(analizador, estacion):
+    return m.get(analizador['estaciones'], estacion)
+
 # ==============================  
 def encontrar_tops_3(analizador):
     """Requerimiento 3.
@@ -162,8 +165,8 @@ def encontrar_tops_3(analizador):
     mas_tristes = mpq.newMinPQ(comparacion_ranking_invertido)
     while it.hasNext(iterador):
         estacion = it.next(iterador)
-        cantidad_salidas = lt.size(estacion['salidas'])
-        cantidad_llegadas = lt.size(estacion['llegadas'])
+        cantidad_salidas = calcular_cantidad_viajes(estacion['rangos_edad']['salidas'])
+        cantidad_llegadas = calcular_cantidad_viajes(estacion['rangos_edad']['llegadas'])
         cantidad_tristes = cantidad_salidas + cantidad_llegadas
         mpq.insert(max_salidas, (cantidad_salidas, estacion['nombre']))
         mpq.insert(max_llegadas, (cantidad_llegadas, estacion['nombre']))
@@ -179,7 +182,26 @@ def encontrar_tops_3(analizador):
         mas_tristes_lst.append(mpq.delMin(mas_tristes))
     
     return (max_salidas_lst, max_llegadas_lst, mas_tristes_lst)
-        
+
+def encontrar_max_estaciones_rango_edad(analizador, indice_rango_edad):
+    """Requerimiento 5."""
+    iterador = it.newIterator(analizador['lista_estaciones'])
+    max_salidas = [0, 0, None]
+    max_llegadas = [0, 0, None]
+    while it.hasNext(iterador):
+        estacion = it.next(iterador)
+        if estacion['rangos_edad']['salidas'][indice_rango_edad] > max_salidas[0]:
+            max_salidas[0] = estacion['rangos_edad']['salidas'][indice_rango_edad]
+            max_salidas[1] = estacion['id']
+            max_salidas[2] = estacion['nombre']
+
+        if estacion['rangos_edad']['llegadas'][indice_rango_edad] > max_llegadas[0]:
+            max_llegadas[0] = estacion['rangos_edad']['llegadas'][indice_rango_edad]
+            max_llegadas[1] = estacion['id']
+            max_llegadas[2] = estacion['nombre']
+
+    return max_salidas, max_llegadas
+
 def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
     """Requerimiento 6.
 
@@ -224,11 +246,15 @@ def distancia_lat_lon(lon1,lat1,lon2,lat2):
 
     alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
 
-    distancia = 2*math.asin(math.sqrt(alpha)) * 3956
+    distancia = 2*math.asin(math.sqrt(alpha)) * 6371
 
     return distancia
 
-
+def calcular_cantidad_viajes(lista_rangos):
+    total = 0
+    for i in lista_rangos:
+        total += i
+    return total
 
 # ==============================
 # Funciones de Comparacion

@@ -198,6 +198,16 @@ def encontrar_tops_3(analizador):
     """
     return model.encontrar_tops_3(analizador)
 
+def recomendador_de_rutas(analizador, indice_edad):
+    estacion_inicio, estacion_final = model.encontrar_max_estaciones_rango_edad(analizador, indice_edad)
+    tiempo, caminos = model.datos_dijkstra(analizador, estacion_inicio[1], estacion_final[1])
+    iterador_caminos = it.newIterator(caminos)
+    camino = ""
+    while it.hasNext(iterador_caminos):
+        arco = it.next(iterador_caminos)
+        camino += str(arco['vertexA']) + " -> " + str(arco['vertexB']) + "\n"
+    return estacion_inicio, estacion_final, camino, tiempo
+
 def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_final):
     estaciones, distancia = model.encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final, lon_final)
     tiempo, caminos = model.datos_dijkstra(analizador, estaciones[0]['id'], estaciones[1]['id'])
