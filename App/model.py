@@ -216,7 +216,7 @@ def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final
         distancia_estacion_final = distancia_lat_lon(lon_final, lat_final, datos_estacion['longitud'],  datos_estacion['latitud'])
         if distancia_estacion_inicial < estacion_inicial[0]:
             estacion_inicial = (distancia_estacion_inicial, datos_estacion)
-        if distancia_estacion_final < estacion_final[0]:
+        el  if distancia_estacion_final < estacion_final[0]:
             estacion_final = (distancia_estacion_final, datos_estacion)
     distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
     return (estacion_inicial[1], estacion_final[1]), distancia_total
