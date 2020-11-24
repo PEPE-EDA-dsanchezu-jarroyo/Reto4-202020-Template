@@ -28,6 +28,7 @@ from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as stk
+from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import listiterator as it
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
@@ -50,8 +51,15 @@ def crear_analizador():
     analizador = {'grafo': crear_grafo(True,15),
                   'estaciones': crear_mapa(),
                   'lista_estaciones': None,
-                  'mapa_rango_edades': crear_mapa()}
+                  'mapa_rango_edades': crear_mapa(),
+                  'bicis': crear_mapa(),
+                  'usuarios': crear_mapa()}
+
+    for indice_rango in range(7):
+        m.put(analizador['usuarios'], indice_rango, crear_mapa())
+    
     return analizador
+
 
 def crear_grafo(directed,size):
     """Crea un grafo vacío."""
@@ -60,6 +68,9 @@ def crear_grafo(directed,size):
 def crear_mapa(numelements=157,loadfactor=2,maptype='CHAINING'):
     """Crea un mapa vacío."""
     return m.newMap(numelements=numelements,maptype=maptype,loadfactor=loadfactor,comparefunction=comparar_estaciones)
+
+def crear_mapa_ordenado():
+    return om.newMap(comparefunction=comparar_indices_edad)
 
 def crear_lista(listtype='SINGLE_LINKED'):
     """Crea una lista vacía."""
@@ -76,6 +87,14 @@ def insertar_estacion(analizador, id_estacion, datos_estacion):
     m.put(analizador['estaciones'],id_estacion,datos_estacion)
     gr.insertVertex(analizador['grafo'],id_estacion)
 
+def insertar_bici(analizador, id_bici, datos_bici):
+    if m.contains(analizador['bicis'], id_bici):
+        lt.addLast(m.get(analizador['bicis'], id_bici)['value'], datos_bici)
+    else:
+        nuevos_datos = lt.newList()
+        lt.addLast(nuevos_datos, datos_bici)
+        m.put(analizador['bicis'], id_bici, nuevos_datos)
+
 def actualizar_estacion(mapa, estacion, nueva_salida=None, nueva_llegada=None):
     datos_estacion = m.get(mapa, estacion)['value']
     if nueva_salida is not None:
@@ -85,7 +104,6 @@ def actualizar_estacion(mapa, estacion, nueva_salida=None, nueva_llegada=None):
     if nueva_llegada is not None:
         lt.addLast(datos_estacion['llegadas'],nueva_llegada[0])
         datos_estacion['rangos_edad']['llegadas'][nueva_llegada[1]] += 1
-
 
 def crear_camino(grafo,estacion1,estacion2,tiempo):
     """Crea un camino entre 2 estaciones con tiempo como peso.
@@ -112,6 +130,9 @@ def configurar_arcos(analizador):
         lt.addLast(vertice_b['value']['llegadas'],vertice_b)
         arco['weight'] = round(arco['weight'][0]/arco['weight'][1],3)
     analizador['lista_estaciones'] = m.valueSet(analizador['estaciones'])
+
+def insertar_usuario(analizador, datos):
+    pass
 
 # ==============================
 # Funciones de consulta
@@ -216,20 +237,23 @@ def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final
         distancia_estacion_final = distancia_lat_lon(lon_final, lat_final, datos_estacion['longitud'],  datos_estacion['latitud'])
         if distancia_estacion_inicial < estacion_inicial[0]:
             estacion_inicial = (distancia_estacion_inicial, datos_estacion)
-        if distancia_estacion_final < estacion_final[0]:
+        elif distancia_estacion_final < estacion_final[0]:
             estacion_final = (distancia_estacion_final, datos_estacion)
     distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
     return (estacion_inicial[1], estacion_final[1]), distancia_total
 
-def datos_dijkstra(analizador, estacion_inicio, estacion_final):
-    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
-    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
-    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
-    lista_caminos = crear_lista()
-    if caminos is not None:
-        for i in range(stk.size(caminos)):
-            lt.addLast(lista_caminos, stk.pop(caminos))
-    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
+def encontrar_recorrido_estadisticas_bicis(analizador, id_bici, dia):
+    lista_bicicleta = m.get(analizador['bicis'], id_bici)['value']
+    if lista_bicicleta is not None:
+        iterador_lista_bicicleta = it.newIterator(lista_bicicleta)
+        lista_recorrido = crear_lista()
+        while it.hasNext(iterador_lista_bicicleta):
+            elemento = it.next(iterador_lista_bicicleta)
+            if elemento ['fecha'][0] == dia or elemento ['fecha'][1] == dia:
+                lt.addLast(lista_recorrido, elemento)
+        return lista_recorrido
+    return None
+
 
 # ==============================
 # Funciones Helper
@@ -240,21 +264,34 @@ def estructura_Kosaraju(grafo):
     return scc.KosarajuSCC(grafo)
 
 def distancia_lat_lon(lon1,lat1,lon2,lat2):
-    """Retorna la distancia entre 2 puntos."""
-    delta_lon = lon2-lon1
-    delta_lat = lat2-lat1
+    return abs(lon1-lon2) + abs(lat1-lat2)
 
-    alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
+# def distancia_lat_lon(lon1,lat1,lon2,lat2):
+#     """Retorna la distancia entre 2 puntos."""
+#     delta_lon = lon2-lon1
+#     delta_lat = lat2-lat1
 
-    distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+#     alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
 
-    return distancia
+#     distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+
+#     return distancia
 
 def calcular_cantidad_viajes(lista_rangos):
     total = 0
     for i in lista_rangos:
         total += i
     return total
+
+def datos_dijkstra(analizador, estacion_inicio, estacion_final):
+    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
+    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
+    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
+    lista_caminos = crear_lista()
+    if caminos is not None:
+        for i in range(stk.size(caminos)):
+            lt.addLast(lista_caminos, stk.pop(caminos))
+    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
 
 # ==============================
 # Funciones de Comparacion
@@ -283,3 +320,10 @@ def comparacion_ranking_invertido(el1, el2):
     elif el1 == el2[0]:
         return 0
     return -1
+
+def comparar_indices_edad(el1, el2):
+    if el1 > el2:
+        return 1
+    elif el1 < el2:
+        return 1
+    return 0
