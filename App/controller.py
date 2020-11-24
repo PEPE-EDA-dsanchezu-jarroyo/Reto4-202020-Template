@@ -97,19 +97,19 @@ def cargar_datos(analizador, archivo):
         if not viaje['start station id'] == viaje['end station id']:
 
             if 2020-int(viaje['birth year']) in range(0,11):
-                indice_viaje = 0
+                indice_rango = 0
             elif 2020-int(viaje['birth year']) in range(11,21):
-                indice_viaje = 1
+                indice_rango = 1
             elif 2020-int(viaje['birth year']) in range(21,31):
-                indice_viaje = 2
+                indice_rango = 2
             elif 2020-int(viaje['birth year']) in range(31,41):
-                indice_viaje = 3
+                indice_rango = 3
             elif 2020-int(viaje['birth year']) in range(41,51):
-                indice_viaje = 4
+                indice_rango = 4
             elif 2020-int(viaje['birth year']) in range(51,61):
-                indice_viaje = 5
+                indice_rango = 5
             else:
-                indice_viaje = 6
+                indice_rango = 6
 
             if not model.existe_estacion(analizador['estaciones'], int(viaje['start station id'])):
                 total_estaciones += 1
@@ -123,9 +123,9 @@ def cargar_datos(analizador, archivo):
                                                         'llegadas': [0,0,0,0,0,0,0]}}
                 model.insertar_estacion(analizador,datos_estacion_salida['id'], datos_estacion_salida)
                 lt.addLast(datos_estacion_salida['salidas'], int(viaje['end station id']))
-                datos_estacion_salida['rangos_edad']['salidas'][indice_viaje] += 1
+                datos_estacion_salida['rangos_edad']['salidas'][indice_rango] += 1
             else:
-                model.actualizar_estacion(analizador['estaciones'], int(viaje['start station id']),nueva_salida=(int(viaje['end station id']), indice_viaje))
+                model.actualizar_estacion(analizador['estaciones'], int(viaje['start station id']),nueva_salida=(int(viaje['end station id']), indice_rango))
 
             if not model.existe_estacion(analizador['estaciones'], int(viaje['end station id'])):
                 total_estaciones += 1
@@ -139,10 +139,10 @@ def cargar_datos(analizador, archivo):
                                                         'llegadas': [0,0,0,0,0,0,0]}}
                 model.insertar_estacion(analizador,datos_estacion_llegada['id'], datos_estacion_llegada)       
                 lt.addLast(datos_estacion_llegada['llegadas'], int(viaje['start station id']))
-                datos_estacion_llegada['rangos_edad']['llegadas'][indice_viaje] += 1
+                datos_estacion_llegada['rangos_edad']['llegadas'][indice_rango] += 1
 
             else:
-                model.actualizar_estacion(analizador['estaciones'], int(viaje['end station id']), nueva_llegada=(int(viaje['start station id']), indice_viaje))
+                model.actualizar_estacion(analizador['estaciones'], int(viaje['end station id']), nueva_llegada=(int(viaje['start station id']), indice_rango))
 
             total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
             total_viajes += 1
@@ -153,9 +153,7 @@ def cargar_datos(analizador, archivo):
                                                               'fecha': (viaje['starttime'][:10], viaje['stoptime'][:10])})
 
             if viaje['usertype'] == 'Customer':
-                pass
-                
-                    
+                model.insertar_usuario(analizador, indice_rango, viaje['start station id'] + ' -> ' + viaje['end station id'])
     
     return total_estaciones, total_viajes, total_caminos
 
@@ -246,6 +244,18 @@ def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_
         return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "Por favor quédese en esa estación"
     else:
         return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "No existe ruta"
+
+def identificador_estaciones_publicidad(analizador, indice_rango):
+    """Requerimiento 7."""
+    cantidad_viajes, lista_estaciones = model.encontrar_max_estaciones_adyacentes(analizador, indice_rango)
+    str_estaciones = "Ninguna"
+    if lista_estaciones is not None:
+        str_estaciones = ""
+        iterador = it.newIterator(lista_estaciones)
+        while it.hasNext(iterador):
+            str_estaciones += it.next(iterador) + '\n'
+    return cantidad_viajes, str_estaciones
+
 
 def identificador_bicicletas_mantenimiento(analizador, id_bici, fecha):
     lista_recorrido = model.encontrar_recorrido_estadisticas_bicis(analizador, id_bici, fecha)

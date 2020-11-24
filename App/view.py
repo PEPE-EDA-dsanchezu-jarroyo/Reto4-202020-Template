@@ -188,6 +188,12 @@ while True:
             print("6- 51-60")
             print("7- 60+\n")
             indice_edad = int(input()[0])-1
+            cantidad_viajes, str_estaciones = controller.identificador_estaciones_publicidad(analizador, indice_edad)
+            print(f"\nViajes:\n{str_estaciones}")
+            print(f"La cantidad de viajes hechos fue: {cantidad_viajes}")
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '8':
         if analizador is not None:

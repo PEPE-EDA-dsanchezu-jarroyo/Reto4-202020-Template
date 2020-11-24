@@ -131,8 +131,12 @@ def configurar_arcos(analizador):
         arco['weight'] = round(arco['weight'][0]/arco['weight'][1],3)
     analizador['lista_estaciones'] = m.valueSet(analizador['estaciones'])
 
-def insertar_usuario(analizador, datos):
-    pass
+def insertar_usuario(analizador, indice_rango, viaje):
+    mapa_rango = m.get(analizador['usuarios'], indice_rango)['value']
+    if m.contains(mapa_rango, viaje):
+        m.get(mapa_rango, viaje)['value'][0] += 1
+    else:
+        m.put(mapa_rango, viaje, [1, viaje])
 
 # ==============================
 # Funciones de consulta
@@ -242,6 +246,22 @@ def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final
     distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
     return (estacion_inicial[1], estacion_final[1]), distancia_total
 
+def encontrar_max_estaciones_adyacentes(analizador, indice_rango):
+    """Requerimiento 7."""
+    mapa_rango = m.get(analizador['usuarios'], indice_rango)['value']
+    lista_estaciones_usuarios = m.valueSet(mapa_rango)
+    iterador = it.newIterator(lista_estaciones_usuarios)
+    resultado = [0, None]
+    while it.hasNext(iterador):
+        ruta = it.next(iterador)
+        if ruta[0] > resultado[0]:
+            resultado[0] = ruta[0]
+            resultado[1] = crear_lista()
+            lt.addLast(resultado[1], ruta[1])
+        elif ruta[0] == resultado[0]:
+            lt.addLast(resultado[1], ruta[1])
+    return resultado
+
 def encontrar_recorrido_estadisticas_bicis(analizador, id_bici, dia):
     lista_bicicleta = m.get(analizador['bicis'], id_bici)['value']
     if lista_bicicleta is not None:
@@ -263,19 +283,20 @@ def estructura_Kosaraju(grafo):
     """Retorna una estructura con el resultado del algoritmo de Kosaraju."""
     return scc.KosarajuSCC(grafo)
 
-def distancia_lat_lon(lon1,lat1,lon2,lat2):
-    return abs(lon1-lon2) + abs(lat1-lat2)
-
 # def distancia_lat_lon(lon1,lat1,lon2,lat2):
-#     """Retorna la distancia entre 2 puntos."""
-#     delta_lon = lon2-lon1
-#     delta_lat = lat2-lat1
+#     """Función de simulación."""
+#     return abs(lon1-lon2) + abs(lat1-lat2)
 
-#     alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
+def distancia_lat_lon(lon1,lat1,lon2,lat2):
+    """Retorna la distancia entre 2 puntos."""
+    delta_lon = lon2-lon1
+    delta_lat = lat2-lat1
 
-#     distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+    alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
 
-#     return distancia
+    distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+
+    return distancia
 
 def calcular_cantidad_viajes(lista_rangos):
     total = 0
