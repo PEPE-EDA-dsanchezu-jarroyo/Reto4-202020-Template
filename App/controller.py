@@ -146,7 +146,11 @@ def cargar_datos(analizador, archivo):
 
             total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
             total_viajes += 1
-
+        model.insertar_bici(analizador, viaje['bikeid'], {'inicio': viaje['start station id'],
+                                                          'final': viaje['end station id'], 
+                                                          'duracion': float(viaje['tripduration']),
+                                                          'fecha': (viaje['starttime'][:10], viaje['stoptime'][:10])})
+    
     return total_estaciones, total_viajes, total_caminos
 
 # ___________________________________________________
@@ -223,3 +227,15 @@ def ruta_interes_turistico(analizador, lat_inicial, lon_inicial, lat_final, lon_
     else:
         return (estaciones[0]['id'], estaciones[0]['nombre']), (estaciones[1]['id'], estaciones[1]['nombre']), 0, 0, "No existe ruta"
 
+def identificador_bicicletas_mantenimiento(analizador, id_bici, fecha):
+    lista_recorrido = model.encontrar_recorrido_estadisticas_bicis(analizador, id_bici, fecha)
+    if lista_recorrido is not None:
+        iterador = it.newIterator(lista_recorrido)
+        recorrido = ""
+        tiempo_recorrido = 0
+        while it.hasNext(iterador):
+            elemento = it.next(iterador)
+            tiempo_recorrido += elemento['duracion']
+            recorrido += elemento['inicio'] + ' -> ' + elemento['final'] + ' tiempo: ' + str(round(elemento['duracion']/60,3)) + '\n'
+        return recorrido, round(tiempo_recorrido/60,3), round((86400-tiempo_recorrido)/60,3)
+    return None

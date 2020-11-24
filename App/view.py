@@ -90,76 +90,114 @@ while True:
                 print("pertenecen al mismo clúster")
             else:
                 print("no pertenecen al mismo clúster")
-            print("Tiempo de ejecución: ", round(tf-ti,5), "segundos")
+            print("Tiempo de ejecución: ", round(tf-ti,3), "segundos")
         else:
             print("Por favor cargue los datos primero")
             print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '2':
-        origen = int(input("inserte estacion de origen: "))
-        llegada = int(input("inserte estacion de llegada: "))
-        controller.funciones_djisktra(analizador,origen,llegada)
-        pass
+        if analizador is not None:
+            origen = int(input("inserte estacion de origen: "))
+            llegada = int(input("inserte estacion de llegada: "))
+            controller.funciones_djisktra(analizador,origen,llegada)
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '3':
-        ti = time.perf_counter()
-        resultado = controller.encontrar_tops_3(analizador)
-        tf = time.perf_counter()
-        print("\nTop 3 estaciones de salidas: ")
-        for i in resultado[0]:
-            print(f"{i[1]:<30}: {i[0]} salidas")
-        
-        print("\nTop 3 estaciones de llegada: ")
-        for i in resultado[1]:
-            print(f"{i[1]:<30}: {i[0]} llegadas")
-
-        print("\nTop 3 estaciones más tristes: ")
-        for i in resultado[2]:
-            print(f"{i[1]:<30}: {i[0]} salidas y llegadas")
-
-        print("Tiempo de ejecución:",tf-ti,"segundos")
+        if analizador is not None:
+            ti = time.perf_counter()
+            resultado = controller.encontrar_tops_3(analizador)
+            tf = time.perf_counter()
+            print("\nTop 3 estaciones de salidas: ")
+            for i in resultado[0]:
+                print(f"{i[1]:<40}: {i[0]} salidas")
+            print("\nTop 3 estaciones de llegada: ")
+            for i in resultado[1]:
+                print(f"{i[1]:<40}: {i[0]} llegadas")
+            print("\nTop 3 estaciones más tristes: ")
+            for i in resultado[2]:
+                print(f"{i[1]:<40}: {i[0]} salidas y llegadas")
+            print("Tiempo de ejecución:",round(tf-ti,3),"segundos")
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '4':
         pass
 
     elif seleccion[0] == '5':
-        print("Por favor ingrese su rango de edad según las siguientes opciones: ")
-        print("1- 0-10")
-        print("2- 11-20")
-        print("3- 21-30")
-        print("4- 31-40")
-        print("5- 41-50")
-        print("6- 51-60")
-        print("7- 60+\n")
-        indice_edad = int(input()[0])-1
-        ti = time.perf_counter()
-        est_inicio, est_final, camino, tiempo = controller.recomendador_de_rutas(analizador, indice_edad)
-        tf = time.perf_counter()
-        print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total viajes en rango de edad: {est_final[0]}")
-        print(f"Estación final: {est_final[2]} - id: {est_final[1]} - Total viajes en rango de edad: {est_final[0]}")
-        print(f"Ruta a tomar:\n{camino}")
-        print(f"Tiempo estimado de viaje: {tiempo}")
-        print(f"Tiempo de ejecución: {round(tf-ti,7)} Segundos")
+        if analizador is not None:
+            print("Por favor ingrese su rango de edad según las siguientes opciones: ")
+            print("1- 0-10")
+            print("2- 11-20")
+            print("3- 21-30")
+            print("4- 31-40")
+            print("5- 41-50")
+            print("6- 51-60")
+            print("7- 60+\n")
+            indice_edad = int(input()[0])-1
+            try:
+                ti = time.perf_counter()
+                est_inicio, est_final, camino, tiempo = controller.recomendador_de_rutas(analizador, indice_edad)
+                tf = time.perf_counter()
+                print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total de salidas: {est_final[0]}")
+                print(f"Estación final: {est_final[2]} - id: {est_final[1]} - Total de llegadas: {est_final[0]}")
+                print(f"Ruta a tomar:\n{camino}")
+                print(f"Tiempo estimado de viaje: {round(tiempo/60,3)}")
+                print(f"Tiempo de ejecución: {round(tf-ti,3)} Segundos")
+            except ValueError:
+                print("No existen estaciones a las que salgan o lleguen personas en ese rango de fechas")
+            except IndexError:
+                print("Por favor seleccione un rango de edad válido")
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '6':
-        pos_inicial = input("Ingrese su posición inicial (ej: 40.69839895 -73.98068914): ").split()
-        pos_final = input("Ingrese su posición inicial (ej: 40.69196566 -73.9813018): ").split()
-        ti = time.perf_counter()
-        resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
-        tf = time.perf_counter()
-
-        print(f"\nEstación inicial: {resultado[0][1]} (id: {resultado[0][0]})")
-        print(f"Estación final: {resultado[1][1]} (id: {resultado[1][0]})")
-        print(f"Ruta a tomar:\n{resultado[4]}")
-        print(f"Tiempo estimado de viaje: {resultado[2]}")
-        print(f"Distancia total: {resultado[3]}")
-        print(f"Tiempo de ejecución: {round(tf-ti,7)} Segundos")
+        if analizador is not None:
+            pos_inicial = input("Ingrese su posición de origen (ej: 40.69839895 -73.98068914): ").split()
+            pos_final = input("Ingrese su posición de destino (ej: 40.69196566 -73.9813018): ").split()
+            try:
+                ti = time.perf_counter()
+                resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
+                tf = time.perf_counter()
+                print(f"\nEstación inicial: {resultado[0][1]} (id: {resultado[0][0]})")
+                print(f"Estación final: {resultado[1][1]} (id: {resultado[1][0]})")
+                print(f"Ruta a tomar:\n{resultado[4]}")
+                print(f"Tiempo estimado de viaje: {round(resultado[2]/60,3)}")
+                print(f"Distancia total: {resultado[3]}")
+                print(f"Tiempo de ejecución: {round(tf-ti,3)} Segundos")
+            except ValueError:
+                print("Por favor ingrese los datos en el formato correco")
+                time.sleep(1.5)
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '7':
         pass
 
     elif seleccion[0] == '8':
-        pass
+        if analizador is not None:
+            id_bici = input("Ingrese la Id de bicicleta que desea buscar:\n")
+            fecha = input("Ingrese el día que desea buscar en formato AAAA-MM-DD (ej: 2018-01-31):\n")
+            try:
+                ti = time.perf_counter()
+                recorrido, tiempo_uso, tiempo_estacionado = controller.identificador_bicicletas_mantenimiento(analizador, id_bici, fecha)
+                tf = time.perf_counter()
+                print(f"Los recorridos que hizo ese día fueron:\n{recorrido}")
+                print(f"El tiempo de uso total fue: {tiempo_uso} minutos")
+                print(f"El tiempo de estacionado total fue: {tiempo_estacionado} minutos")
+                print(f"Tiempo de ejecución: {round(tf-ti,3)} Segundos")
+            except TypeError:
+                print("No se ha encontrado la bicicleta o la fecha")
+                print("Asegúrese de haber escrito bien los datos")
+                time.sleep(1.5)
+        else:
+            print("Por favor cargue los datos primero")
+            print("Escriba \'C\' para cargar")
+
 
     elif seleccion[0] == '0':
         sys.exit(0)

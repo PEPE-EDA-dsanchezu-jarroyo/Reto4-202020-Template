@@ -50,7 +50,8 @@ def crear_analizador():
     analizador = {'grafo': crear_grafo(True,15),
                   'estaciones': crear_mapa(),
                   'lista_estaciones': None,
-                  'mapa_rango_edades': crear_mapa()}
+                  'mapa_rango_edades': crear_mapa(),
+                  'bicis': crear_mapa()}
     return analizador
 
 def crear_grafo(directed,size):
@@ -75,6 +76,14 @@ def insertar_estacion(analizador, id_estacion, datos_estacion):
     """Inserta una estación en el analizador."""
     m.put(analizador['estaciones'],id_estacion,datos_estacion)
     gr.insertVertex(analizador['grafo'],id_estacion)
+
+def insertar_bici(analizador, id_bici, datos_bici):
+    if m.contains(analizador['bicis'], id_bici):
+        lt.addLast(m.get(analizador['bicis'], id_bici)['value'], datos_bici)
+    else:
+        nuevos_datos = lt.newList()
+        lt.addLast(nuevos_datos, datos_bici)
+        m.put(analizador['bicis'], id_bici, nuevos_datos)
 
 def actualizar_estacion(mapa, estacion, nueva_salida=None, nueva_llegada=None):
     datos_estacion = m.get(mapa, estacion)['value']
@@ -221,15 +230,18 @@ def encontrar_estaciones_lat_lon(analizador, lat_inicial, lon_inicial, lat_final
     distancia_total = distancia_lat_lon(estacion_inicial[1]['longitud'], estacion_inicial[1]['latitud'], estacion_final[1]['longitud'], estacion_final[1]['latitud'])
     return (estacion_inicial[1], estacion_final[1]), distancia_total
 
-def datos_dijkstra(analizador, estacion_inicio, estacion_final):
-    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
-    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
-    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
-    lista_caminos = crear_lista()
-    if caminos is not None:
-        for i in range(stk.size(caminos)):
-            lt.addLast(lista_caminos, stk.pop(caminos))
-    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
+def encontrar_recorrido_estadisticas_bicis(analizador, id_bici, dia):
+    lista_bicicleta = m.get(analizador['bicis'], id_bici)['value']
+    if lista_bicicleta is not None:
+        iterador_lista_bicicleta = it.newIterator(lista_bicicleta)
+        lista_recorrido = crear_lista()
+        while it.hasNext(iterador_lista_bicicleta):
+            elemento = it.next(iterador_lista_bicicleta)
+            if elemento ['fecha'][0] == dia or elemento ['fecha'][1] == dia:
+                lt.addLast(lista_recorrido, elemento)
+        return lista_recorrido
+    return None
+
 
 # ==============================
 # Funciones Helper
@@ -255,6 +267,16 @@ def calcular_cantidad_viajes(lista_rangos):
     for i in lista_rangos:
         total += i
     return total
+
+def datos_dijkstra(analizador, estacion_inicio, estacion_final):
+    """Retorna el tiempo necesario para llegar de estacion_inicio a estacion_final."""
+    estructura_dijkstra = djk.Dijkstra(analizador['grafo'], estacion_inicio)
+    caminos = djk.pathTo(estructura_dijkstra, estacion_final)
+    lista_caminos = crear_lista()
+    if caminos is not None:
+        for i in range(stk.size(caminos)):
+            lt.addLast(lista_caminos, stk.pop(caminos))
+    return djk.distTo(estructura_dijkstra, estacion_final), lista_caminos
 
 # ==============================
 # Funciones de Comparacion
