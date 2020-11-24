@@ -252,15 +252,18 @@ def estructura_Kosaraju(grafo):
     return scc.KosarajuSCC(grafo)
 
 def distancia_lat_lon(lon1,lat1,lon2,lat2):
-    """Retorna la distancia entre 2 puntos."""
-    delta_lon = lon2-lon1
-    delta_lat = lat2-lat1
+    return abs(lon1-lon2) + abs(lat1-lat2)
 
-    alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
+# def distancia_lat_lon(lon1,lat1,lon2,lat2):
+#     """Retorna la distancia entre 2 puntos."""
+#     delta_lon = lon2-lon1
+#     delta_lat = lat2-lat1
 
-    distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+#     alpha = math.sin(delta_lat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon/2)**2
 
-    return distancia
+#     distancia = 2*math.asin(math.sqrt(alpha)) * 6371
+
+#     return distancia
 
 def calcular_cantidad_viajes(lista_rangos):
     total = 0

@@ -141,24 +141,26 @@ while True:
                 ti = time.perf_counter()
                 est_inicio, est_final, camino, tiempo = controller.recomendador_de_rutas(analizador, indice_edad)
                 tf = time.perf_counter()
-                print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total de salidas: {est_final[0]}")
-                print(f"Estación final: {est_final[2]} - id: {est_final[1]} - Total de llegadas: {est_final[0]}")
+                print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total de salidas: {est_inicio[0]}")
+                print(f"Estación final:   {est_final[2]} - id: {est_final[1]} - Total de llegadas: {est_final[0]}")
                 print(f"Ruta a tomar:\n{camino}")
                 print(f"Tiempo estimado de viaje: {round(tiempo/60,3)}")
                 print(f"Tiempo de ejecución: {round(tf-ti,3)} Segundos")
             except ValueError:
                 print("No existen estaciones a las que salgan o lleguen personas en ese rango de fechas")
+                time.sleep(1)
             except IndexError:
                 print("Por favor seleccione un rango de edad válido")
+                time.sleep(1)
         else:
             print("Por favor cargue los datos primero")
             print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '6':
         if analizador is not None:
-            pos_inicial = input("Ingrese su posición de origen (ej: 40.69839895 -73.98068914): ").split()
-            pos_final = input("Ingrese su posición de destino (ej: 40.69196566 -73.9813018): ").split()
             try:
+                pos_inicial = input("Ingrese su posición de origen (ej: 40.69839895 -73.98068914): ").split()
+                pos_final = input("Ingrese su posición de destino (ej: 40.69196566 -73.9813018): ").split()
                 ti = time.perf_counter()
                 resultado = controller.ruta_interes_turistico(analizador, float(pos_inicial[0]), float(pos_inicial[1]), float(pos_final[0]), float(pos_final[1]))
                 tf = time.perf_counter()
@@ -166,11 +168,14 @@ while True:
                 print(f"Estación final: {resultado[1][1]} (id: {resultado[1][0]})")
                 print(f"Ruta a tomar:\n{resultado[4]}")
                 print(f"Tiempo estimado de viaje: {round(resultado[2]/60,3)}")
-                print(f"Distancia total: {resultado[3]}")
+                print(f"Distancia total: {round(resultado[3],3)} Kilómetros")
                 print(f"Tiempo de ejecución: {round(tf-ti,3)} Segundos")
             except ValueError:
-                print("Por favor ingrese los datos en el formato correco")
-                time.sleep(1.5)
+                print("\nPor favor ingrese los datos en el formato correcto")
+                time.sleep(1)
+            except IndexError:
+                print("\nPor favor ingrese los datos en el formato correcto")
+                time.sleep(1)
         else:
             print("Por favor cargue los datos primero")
             print("Escriba \'C\' para cargar")
@@ -193,7 +198,7 @@ while True:
             except TypeError:
                 print("No se ha encontrado la bicicleta o la fecha")
                 print("Asegúrese de haber escrito bien los datos")
-                time.sleep(1.5)
+                time.sleep(1)
         else:
             print("Por favor cargue los datos primero")
             print("Escriba \'C\' para cargar")
@@ -204,3 +209,5 @@ while True:
     
     else:
         sys.exit(0)
+
+#180,2018-01-01,2018-01-01,1,estacion 1,1,1,4,estacion 4,4,4,03,1992
