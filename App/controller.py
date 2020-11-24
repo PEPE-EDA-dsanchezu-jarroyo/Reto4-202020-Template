@@ -146,10 +146,16 @@ def cargar_datos(analizador, archivo):
 
             total_caminos += model.crear_camino(analizador['grafo'], int(viaje['start station id']), int(viaje['end station id']),float(viaje['tripduration']))
             total_viajes += 1
-        model.insertar_bici(analizador, viaje['bikeid'], {'inicio': viaje['start station id'],
-                                                          'final': viaje['end station id'], 
-                                                          'duracion': float(viaje['tripduration']),
-                                                          'fecha': (viaje['starttime'][:10], viaje['stoptime'][:10])})
+        
+            model.insertar_bici(analizador, viaje['bikeid'], {'inicio': viaje['start station id'],
+                                                              'final': viaje['end station id'], 
+                                                              'duracion': float(viaje['tripduration']),
+                                                              'fecha': (viaje['starttime'][:10], viaje['stoptime'][:10])})
+
+            if viaje['usertype'] == 'Customer':
+                pass
+                
+                    
     
     return total_estaciones, total_viajes, total_caminos
 

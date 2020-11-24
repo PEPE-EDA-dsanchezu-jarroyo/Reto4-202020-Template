@@ -28,6 +28,7 @@ from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as stk
+from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import listiterator as it
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
@@ -51,8 +52,14 @@ def crear_analizador():
                   'estaciones': crear_mapa(),
                   'lista_estaciones': None,
                   'mapa_rango_edades': crear_mapa(),
-                  'bicis': crear_mapa()}
+                  'bicis': crear_mapa(),
+                  'usuarios': crear_mapa()}
+
+    for indice_rango in range(7):
+        m.put(analizador['usuarios'], indice_rango, crear_mapa())
+    
     return analizador
+
 
 def crear_grafo(directed,size):
     """Crea un grafo vacío."""
@@ -61,6 +68,9 @@ def crear_grafo(directed,size):
 def crear_mapa(numelements=157,loadfactor=2,maptype='CHAINING'):
     """Crea un mapa vacío."""
     return m.newMap(numelements=numelements,maptype=maptype,loadfactor=loadfactor,comparefunction=comparar_estaciones)
+
+def crear_mapa_ordenado():
+    return om.newMap(comparefunction=comparar_indices_edad)
 
 def crear_lista(listtype='SINGLE_LINKED'):
     """Crea una lista vacía."""
@@ -95,7 +105,6 @@ def actualizar_estacion(mapa, estacion, nueva_salida=None, nueva_llegada=None):
         lt.addLast(datos_estacion['llegadas'],nueva_llegada[0])
         datos_estacion['rangos_edad']['llegadas'][nueva_llegada[1]] += 1
 
-
 def crear_camino(grafo,estacion1,estacion2,tiempo):
     """Crea un camino entre 2 estaciones con tiempo como peso.
 
@@ -121,6 +130,9 @@ def configurar_arcos(analizador):
         lt.addLast(vertice_b['value']['llegadas'],vertice_b)
         arco['weight'] = round(arco['weight'][0]/arco['weight'][1],3)
     analizador['lista_estaciones'] = m.valueSet(analizador['estaciones'])
+
+def insertar_usuario(analizador, datos):
+    pass
 
 # ==============================
 # Funciones de consulta
@@ -308,3 +320,10 @@ def comparacion_ranking_invertido(el1, el2):
     elif el1 == el2[0]:
         return 0
     return -1
+
+def comparar_indices_edad(el1, el2):
+    if el1 > el2:
+        return 1
+    elif el1 < el2:
+        return 1
+    return 0

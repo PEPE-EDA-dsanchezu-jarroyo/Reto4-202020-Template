@@ -181,7 +181,16 @@ while True:
             print("Escriba \'C\' para cargar")
 
     elif seleccion[0] == '7':
-        pass
+        if analizador is not None:
+            print("Por favor ingrese su rango de edad según las siguientes opciones: ")
+            print("1- 0-10")
+            print("2- 11-20")
+            print("3- 21-30")
+            print("4- 31-40")
+            print("5- 41-50")
+            print("6- 51-60")
+            print("7- 60+\n")
+            indice_edad = int(input()[0])-1
 
     elif seleccion[0] == '8':
         if analizador is not None:
