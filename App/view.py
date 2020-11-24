@@ -98,7 +98,7 @@ while True:
     elif seleccion[0] == '2':
         origen = int(input("inserte estacion de origen: "))
         llegada = int(input("inserte estacion de llegada: "))
-        controller.funciones_djisktra(analizador,origen,llegada)
+        controller.menor_recorrido_posible(analizador,origen,llegada)
         pass
 
     elif seleccion[0] == '3':
@@ -130,10 +130,7 @@ while True:
         print("4- 31-40")
         print("5- 41-50")
         print("6- 51-60")
-        print("7- 60+\n")
-        indice_edad = int(input()[0])-1
-        ti = time.perf_counter()
-        est_inicio, est_final, camino, tiempo = controller.recomendador_de_rutas(analizador, indice_edad)
+        print("7- 60+\n") 
         tf = time.perf_counter()
         print(f"\nEstación inicial: {est_inicio[2]} - id: {est_inicio[1]} - Total viajes en rango de edad: {est_final[0]}")
         print(f"Estación final: {est_final[2]} - id: {est_final[1]} - Total viajes en rango de edad: {est_final[0]}")

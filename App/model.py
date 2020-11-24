@@ -142,10 +142,10 @@ def camino_vertice_a_vertice_dijstra(search, vertex):
     return djk.pathTo(search, vertex)
 
 def entradas_estaciones(analizador,estacion):
-    return m.get(analizador['estaciones'],estacion)['values']['llegadas']
+    return m.get(analizador['estaciones'],estacion)['value']['llegadas']
 
 def peso_estacion_estacion(analizador,estacion1,estacion2):
-    return gr.getEdge(analizador,estacion1,estacion2)
+    return gr.getEdge(analizador['grafo'],estacion1,estacion2)['weight']
 
 def datos_estacion(analizador, estacion):
     return m.get(analizador['estaciones'], estacion)

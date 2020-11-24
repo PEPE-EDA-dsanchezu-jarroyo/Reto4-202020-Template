@@ -170,25 +170,39 @@ def funciones_clusteres(analizador, estacion1, estacion2):
     scc_dos_estaciones = model.encontrar_clusteres(kosaraju, estacion1, estacion2)
     return numero_scc, scc_dos_estaciones
 
+
 def funciones_djisktra(analizador, vertice, llegada):
     djisktra=model.estructura_Dijkstra(analizador['grafo'], vertice)
     route=model.camino_vertice_a_vertice_dijstra(djisktra,llegada)
     return route
 
-def menor_recorrido_posible(grafo, estacion_o):
-    tiempo_menor=math.inf
-    ruta_menor=''
+def menor_recorrido_posible(grafo, estacion_o, tiempo_pedido):
+
     lista_entradas=model.entradas_estaciones(grafo, estacion_o)
-    for i in lista_entradas['elements']:
-        lista_djistra=funciones_djisktra(grafo, estacion_o, i)
-        tiempo1=0
-        for j in lista_djistra['elements']:
-            tiempo1+=(model.peso_estacion_estacion(grafo,estacion_o, j) + 20)
-        tiempo1+=model.peso_estacion_estacion(grafo,estacion_o, i)
-        if tiempo1 <= tiempo_menor:  
-            tiempo_menor=tiempo1
-            ruta_menor=j
-    return (tiempo_menor, tiempo1)
+    iterador_entradas = it.newIterator(lista_entradas)
+    posibles_rutas=lt.newList()
+    while it.hasNext(iterador_entradas):
+        i = it.next(iterador_entradas)
+        if type(i) == dict:
+            i=i['key']
+        if i!=estacion_o:
+            lista_djistra=funciones_djisktra(grafo, estacion_o, i)
+            if (lista_djistra is not None) :
+                iterador_djistra = it.newIterator(lista_djistra)
+                tiempo1=0
+                camino_con_detalles=lt.newList()
+                while it.hasNext(iterador_djistra):
+                    j = it.next(iterador_djistra)
+                    tiempo1+=(j['weight'] + 20)
+                    lt.addLast(camino_con_detalles,j)
+                lt.addLast(camino_con_detalles,{'vertexA': i, 'vertexB': estacion_o, 'weight': model.peso_estacion_estacion(grafo, i, estacion_o)})
+                tiempo1+=(model.peso_estacion_estacion(grafo, i, estacion_o))
+                if tiempo1 == tiempo1:  
+                    lt.addLast(posibles_rutas,camino_con_detalles)
+    
+    return (posibles_rutas)
+
+
 
 def encontrar_tops_3(analizador):
     """Requerimiento 3.
