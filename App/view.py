@@ -97,8 +97,9 @@ while True:
 
     elif seleccion[0] == '2':
         origen = int(input("inserte estacion de origen: "))
-        llegada = int(input("inserte estacion de llegada: "))
-        controller.menor_recorrido_posible(analizador,origen,llegada)
+        inicio = int(input("inserte el tiempo minimo en minutos: "))
+        fin = int(input("inserte el tiempo maximo en minutos: "))
+        controller.menor_recorrido_posible(analizador,origen,inicio,fin)
         pass
 
     elif seleccion[0] == '3':
