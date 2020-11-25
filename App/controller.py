@@ -186,7 +186,7 @@ def funciones_djisktra(analizador, vertice, llegada):
     route=model.camino_vertice_a_vertice_dijstra(djisktra,llegada)
     return route
 
-def menor_recorrido_posible(grafo, estacion_o, tiempo_pedido):
+def menor_recorrido_posible(grafo, estacion_o, tiempo_pedido_min, tiempo_pedido_max):
 
     lista_entradas=model.entradas_estaciones(grafo, estacion_o)
     iterador_entradas = it.newIterator(lista_entradas)
@@ -203,15 +203,50 @@ def menor_recorrido_posible(grafo, estacion_o, tiempo_pedido):
                 camino_con_detalles=lt.newList()
                 while it.hasNext(iterador_djistra):
                     j = it.next(iterador_djistra)
-                    tiempo1+=(j['weight'] + 20)
+                    tiempo1+=(j['weight'] + 1200)
                     lt.addLast(camino_con_detalles,j)
                 lt.addLast(camino_con_detalles,{'vertexA': i, 'vertexB': estacion_o, 'weight': model.peso_estacion_estacion(grafo, i, estacion_o)})
                 tiempo1+=(model.peso_estacion_estacion(grafo, i, estacion_o))
-                if tiempo1 == tiempo1:  
-                    lt.addLast(posibles_rutas,camino_con_detalles)
+                if (tiempo1//60 >= (tiempo_pedido_min)) and (tiempo1//60 <= (tiempo_pedido_max)): 
+                    camino_con_detalles_str=organizar_rutas_str(camino_con_detalles,tiempo1,estacion_o) 
+               
+               
+                    lt.addLast(posibles_rutas,camino_con_detalles_str)
+    imprimir_rutas(posibles_rutas)
     
-    return (posibles_rutas)
+    return None
 
+def esta_en_lista(lst,elemento):
+    iterador_entradas = it.newIterator(lst)
+    while it.hasNext(iterador_entradas):
+        i = it.next(iterador_entradas)
+        if i == elemento:
+            return False
+    return True
+
+def organizar_rutas_str(lst, tiempo, estacion_o):
+    iterador_entradas = it.newIterator(lst)
+    ruta=''
+    ruta+=('Estacion: '+str(estacion_o))
+    while it.hasNext(iterador_entradas):
+        i = it.next(iterador_entradas)
+        llegada=str(i['vertexB'])
+        duracion=str(round(i['weight']/60))
+        ruta+=('__'+duracion+'min'+'--> Estacion: '+llegada)
+    ruta+=('\n tiempo total del recorrido: '+str(round(tiempo/60)))
+    return ruta
+
+def imprimir_rutas(lst):
+    if lt.size(lst)!=0:
+        iterador_entradas = it.newIterator(lst)
+        print('Acontinuacion las rutas circulares disponibles: \n')
+        while it.hasNext(iterador_entradas):
+            i = it.next(iterador_entradas)
+            print(i)
+            print()
+        print('La cantidad de rutas encontradas fue: '+str(lt.size(lst)))
+    else:
+        print('No se encontraron rutas con las caracteristicas pedidas')
 
 
 def encontrar_tops_3(analizador):
